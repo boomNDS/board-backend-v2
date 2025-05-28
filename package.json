@@ -1,10 +1,10 @@
 {
   "name": "board-backend-v2",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Board API backend application",
+  "author": "boomNDS",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "prepare": "husky install || true",
     "build": "nest build",
