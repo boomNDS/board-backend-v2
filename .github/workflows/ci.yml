@@ -1,4 +1,4 @@
-name: Biome
+name: CI
 
 on:
   push:
@@ -12,6 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
       - name: Setup Biome
         uses: biomejs/setup-biome@v2.5.0
 
@@ -20,3 +29,9 @@ jobs:
 
       - name: Lint
         run: biome lint .
+
+      - name: Run tests
+        run: yarn test
+
+      - name: Run tests with coverage
+        run: yarn test:cov
