@@ -8,6 +8,9 @@ import { AppService } from './app.service'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { ProtectedModule } from './protected/protected.module'
+import { PostsService } from './posts/posts.service';
+import { PostsModule } from './posts/posts.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -20,8 +23,10 @@ import { ProtectedModule } from './protected/protected.module'
     AuthModule,
     UsersModule,
     ProtectedModule,
+    PostsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PostsService],
 })
 export class AppModule {}
