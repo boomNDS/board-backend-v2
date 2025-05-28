@@ -1,8 +1,8 @@
 import { Exclude, Expose, Transform } from "class-transformer";
-import { IUser } from "../interfaces/user.interface";
+import { IUser } from "../interface/user.interface";
 
 @Exclude()
-export class UserResponseDto {
+export class TUserResponse {
   @Expose()
   id: number;
 

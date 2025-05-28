@@ -9,7 +9,7 @@ import {
 import { UsersService } from "../users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
-import { UserResponseDto } from "../users/transformers/user.transformer";
+import { TUserResponse } from "../users/transformers/user.transformer";
 import { createMockUser } from "../users/factories/user.factory";
 
 vi.mock("bcrypt", () => ({
@@ -131,7 +131,7 @@ describe("AuthService", () => {
       const mockToken = "mock.jwt.token";
       (service["jwtService"].signAsync as Mock).mockResolvedValue(mockToken);
 
-      const mockUserResponse = new UserResponseDto(mockUser);
+      const mockUserResponse = new TUserResponse(mockUser);
 
       const result = await service.login(mockUserResponse);
 
@@ -146,7 +146,7 @@ describe("AuthService", () => {
       const mockError = new Error("JWT signing failed!");
       (service["jwtService"].signAsync as Mock).mockRejectedValue(mockError);
 
-      const mockUserResponse = new UserResponseDto(mockUser);
+      const mockUserResponse = new TUserResponse(mockUser);
 
       await expect(service.login(mockUserResponse)).rejects.toThrow(
         new InternalServerErrorException("Something went wrong about login!")

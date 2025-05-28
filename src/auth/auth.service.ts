@@ -9,8 +9,8 @@ import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "../users/users.service";
 import * as bcrypt from "bcrypt";
 import { User } from "@prisma/client";
-import { UserResponseDto } from "../users/transformers/user.transformer";
-import { IAuthPayload, IAuthResponse } from "./interfaces/auth.interface";
+import { TUserResponse } from "../users/transformers/user.transformer";
+import { IAuthPayload, IAuthResponse } from "./interface/auth.interface";
 import { LoginDto } from "./dto/login.dto";
 
 @Injectable()
@@ -22,7 +22,7 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async validateUser(loginDto: LoginDto): Promise<UserResponseDto> {
+  async validateUser(loginDto: LoginDto): Promise<TUserResponse> {
     try {
       let user: User | null = null;
       const { username, email, password } = loginDto;
@@ -42,7 +42,7 @@ export class AuthService {
         throw new UnauthorizedException("Invalid password!");
       }
 
-      return new UserResponseDto(user);
+      return new TUserResponse(user);
     } catch (error) {
       this.logger.error("Error validating user:", error.message, error.stack);
       if (
@@ -55,7 +55,7 @@ export class AuthService {
     }
   }
 
-  async login(user: UserResponseDto): Promise<IAuthResponse> {
+  async login(user: TUserResponse): Promise<IAuthResponse> {
     try {
       const payload: IAuthPayload = {
         username: user.username,
@@ -78,7 +78,7 @@ export class AuthService {
     }
   }
 
-  async validateToken(payload: IAuthPayload): Promise<UserResponseDto> {
+  async validateToken(payload: IAuthPayload): Promise<TUserResponse> {
     try {
       const user = await this.usersService.findByUsername(payload.username);
 
@@ -86,7 +86,7 @@ export class AuthService {
         throw new NotFoundException("User not found!");
       }
 
-      return new UserResponseDto(user);
+      return new TUserResponse(user);
     } catch (error) {
       this.logger.error("Error validating token:", error.message, error.stack);
       if (error instanceof NotFoundException) {

@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards, Request } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
-import { UserResponseDto } from "../users/transformers/user.transformer";
+import { TUserResponse } from "../users/transformers/user.transformer";
 
 @ApiTags("protected")
 @ApiBearerAuth("JWT-auth")
@@ -11,7 +11,7 @@ export class ProtectedController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Protected route" })
   getHello(@Request() req) {
-    const user = new UserResponseDto(req.user);
+    const user = new TUserResponse(req.user);
     return {
       message: "Hello World!",
       user: user,

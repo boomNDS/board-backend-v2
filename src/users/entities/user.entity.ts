@@ -1,6 +1,6 @@
 import { Exclude } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
-import { IUser } from "../interfaces/user.interface";
+import { IUser } from "../interface/user.interface";
 
 export class User implements IUser {
   @ApiProperty({ example: 1 })

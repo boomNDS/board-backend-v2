@@ -16,7 +16,7 @@ import {
 } from "@nestjs/swagger";
 import { LoginDto } from "./dto/login.dto";
 import { AuthResponseDto } from "./dto/auth-response.dto";
-import { IAuthResponse } from "./interfaces/auth.interface";
+import { IAuthResponse } from "./interface/auth.interface";
 
 @ApiTags("auth")
 @ApiBearerAuth("JWT-auth")
