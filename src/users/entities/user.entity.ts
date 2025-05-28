@@ -1,27 +1,27 @@
-import { Exclude } from "class-transformer";
-import { ApiProperty } from "@nestjs/swagger";
-import { IUser } from "../interface/user.interface";
+import { Exclude } from "class-transformer"
+import { ApiProperty } from "@nestjs/swagger"
+import { IUser } from "../interface/user.interface"
 
 export class User implements IUser {
   @ApiProperty({ example: 1 })
-  id: number;
+  id: number
 
   @ApiProperty({ example: "john.doe@example.com" })
-  email: string;
+  email: string
 
   @ApiProperty({ example: "johndoe" })
-  username: string;
+  username: string
 
   @Exclude()
-  password: string;
+  password: string
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt: Date
 
   @ApiProperty()
-  updatedAt: Date;
+  updatedAt: Date
 
   constructor(partial: Partial<IUser>) {
-    Object.assign(this, partial);
+    Object.assign(this, partial)
   }
 }

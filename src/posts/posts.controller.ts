@@ -7,42 +7,89 @@ import {
   Param,
   Delete,
   UseGuards,
-} from "@nestjs/common";
-import { PostsService } from "./posts.service";
-import { CreatePostDto } from "./dto/create-post.dto";
-import { UpdatePostDto } from "./dto/update-post.dto";
-import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+  HttpCode,
+  Request,
+} from "@nestjs/common"
+import { PostsService } from "./posts.service"
+import { CreatePostDto } from "./dto/create-post.dto"
+import { UpdatePostDto } from "./dto/update-post.dto"
+import { Post as PostEntity } from "./entities/post.entity"
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from "@nestjs/swagger"
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
 
 @ApiTags("posts")
-@ApiBearerAuth("JWT-auth")
-@UseGuards(JwtAuthGuard)
+@ApiTags("protected")
 @Controller("posts")
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  @ApiBearerAuth("JWT-auth")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "Create a new post" })
+  @HttpCode(201)
+  @ApiResponse({
+    status: 201,
+    description: "Post created successfully",
+    type: PostEntity,
+  })
+  create(
+    @Body() createPostDto: CreatePostDto,
+    @Request() req,
+  ): Promise<PostEntity> {
+    return this.postsService.create(createPostDto, req.user.id)
   }
 
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  @ApiOperation({ summary: "Get all posts" })
+  @ApiResponse({
+    status: 200,
+    description: "Return all posts",
+    type: [PostEntity],
+  })
+  findAll(): Promise<PostEntity[]> {
+    return this.postsService.findAll()
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.postsService.findOne(+id);
+  @ApiOperation({ summary: "Get a post by id" })
+  @ApiResponse({
+    status: 200,
+    description: "Return the post",
+    type: PostEntity,
+  })
+  findOne(@Param("id") id: string): Promise<PostEntity> {
+    return this.postsService.findOne(+id)
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  @ApiBearerAuth("JWT-auth")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "Update a post" })
+  @ApiResponse({
+    status: 200,
+    description: "Post updated successfully",
+    type: PostEntity,
+  })
+  update(
+    @Param("id") id: string,
+    @Body() updatePostDto: UpdatePostDto,
+    @Request() req,
+  ): Promise<PostEntity> {
+    return this.postsService.update(+id, updatePostDto, req.user.id)
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.postsService.remove(+id);
+  @ApiBearerAuth("JWT-auth")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "Delete a post" })
+  @ApiResponse({ status: 200, description: "Post deleted successfully" })
+  remove(@Param("id") id: string, @Request() req): Promise<void> {
+    return this.postsService.remove(+id, req.user.id)
   }
 }

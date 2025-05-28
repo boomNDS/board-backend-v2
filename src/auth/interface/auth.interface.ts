@@ -1,11 +1,11 @@
-import { IUser } from "../../users/interface/user.interface";
+import { IUser } from "../../users/interface/user.interface"
 
 export interface IAuthPayload {
-  username: string;
-  sub: number;
+  username: string
+  sub: number
 }
 
 export interface IAuthResponse {
-  access_token: string;
-  user: IUser;
+  access_token: string
+  user: IUser
 }

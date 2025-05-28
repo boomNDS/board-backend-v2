@@ -1,31 +1,31 @@
-import { Exclude, Expose, Transform } from "class-transformer";
-import { IUser } from "../interface/user.interface";
+import { Exclude, Expose, Transform } from "class-transformer"
+import { IUser } from "../interface/user.interface"
 
 @Exclude()
 export class TUserResponse {
   @Expose()
-  id: number;
+  id: number
 
   @Expose()
-  username: string;
+  username: string
 
   @Expose()
-  email: string;
+  email: string
 
   @Exclude()
-  password: string;
+  password: string
 
   @Exclude()
-  createdAt: Date;
+  createdAt: Date
 
   @Exclude()
-  updatedAt: Date;
+  updatedAt: Date
 
   constructor(user: IUser) {
-    this.id = user.id;
-    this.username = user.username;
-    this.email = user.email;
-    this.createdAt = user.createdAt;
-    this.updatedAt = user.updatedAt;
+    this.id = user.id
+    this.username = user.username
+    this.email = user.email
+    this.createdAt = user.createdAt
+    this.updatedAt = user.updatedAt
   }
 }

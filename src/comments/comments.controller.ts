@@ -7,12 +7,12 @@ import {
   Param,
   Delete,
   UseGuards,
-} from "@nestjs/common";
-import { CommentsService } from "./comments.service";
-import { CreateCommentDto } from "./dto/create-comment.dto";
-import { UpdateCommentDto } from "./dto/update-comment.dto";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+} from "@nestjs/common"
+import { CommentsService } from "./comments.service"
+import { CreateCommentDto } from "./dto/create-comment.dto"
+import { UpdateCommentDto } from "./dto/update-comment.dto"
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger"
 
 @ApiTags("comments")
 @ApiBearerAuth("JWT-auth")
@@ -23,26 +23,26 @@ export class CommentsController {
 
   @Post()
   create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentsService.create(createCommentDto);
+    return this.commentsService.create(createCommentDto)
   }
 
   @Get()
   findAll() {
-    return this.commentsService.findAll();
+    return this.commentsService.findAll()
   }
 
   @Get(":id")
   findOne(@Param("id") id: string) {
-    return this.commentsService.findOne(+id);
+    return this.commentsService.findOne(+id)
   }
 
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto);
+    return this.commentsService.update(+id, updateCommentDto)
   }
 
   @Delete(":id")
   remove(@Param("id") id: string) {
-    return this.commentsService.remove(+id);
+    return this.commentsService.remove(+id)
   }
 }

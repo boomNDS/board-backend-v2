@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { User } from "@prisma/client"
 
 export const createMockUser = (overrides: Partial<User> = {}): User => {
   const defaultUser: User = {
@@ -8,17 +8,17 @@ export const createMockUser = (overrides: Partial<User> = {}): User => {
     password: "hashedPassword",
     createdAt: new Date(),
     updatedAt: new Date(),
-  };
+  }
 
   return {
     ...defaultUser,
     ...overrides,
-  };
-};
+  }
+}
 
 export const createMockUsers = (
   count: number,
-  overrides: Partial<User> = {}
+  overrides: Partial<User> = {},
 ): User[] => {
   return Array.from({ length: count }, (_, index) =>
     createMockUser({
@@ -26,6 +26,6 @@ export const createMockUsers = (
       username: `testuser${index + 1}`,
       email: `test${index + 1}@example.com`,
       ...overrides,
-    })
-  );
-};
+    }),
+  )
+}
