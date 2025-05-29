@@ -6941,6 +6941,11 @@ ts-api-utils@^2.1.0:
   resolved "https://registry.npmjs.org/ts-api-utils/-/ts-api-utils-2.1.0.tgz"
   integrity sha512-CUgTZL1irw8u29bzrOD/nH85jqyc74D6SshFgujOIA7osm2Rz7dYH77agkx7H4FBNxDq7Cjf+IjaX/8zwFW+ZQ==
 
+ts-essentials@>=10.0.0:
+  version "10.0.4"
+  resolved "https://registry.yarnpkg.com/ts-essentials/-/ts-essentials-10.0.4.tgz#db8381c2e44cddb3339a2286174c4763bc1dcedb"
+  integrity sha512-lwYdz28+S4nicm+jFi6V58LaAIpxzhg9rLdgNC1VsdP/xiFBseGhF1M/shwCk6zMmwahBZdXcl34LVHrEang3A==
+
 ts-jest@^29.2.5:
   version "29.3.4"
   resolved "https://registry.npmjs.org/ts-jest/-/ts-jest-29.3.4.tgz"
@@ -7200,6 +7205,13 @@ vite-node@3.1.4:
     tinyglobby "^0.2.13"
   optionalDependencies:
     fsevents "~2.3.3"
+
+vitest-mock-extended@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/vitest-mock-extended/-/vitest-mock-extended-3.1.0.tgz#d4e23f4bbc18d07c4ab928b861e74414c942c974"
+  integrity sha512-vCM0VkuocOUBwwqwV7JB7YStw07pqeKvEIrZnR8l3PtwYi6rAAJAyJACeC1UYNfbQWi85nz7EdiXWBFI5hll2g==
+  dependencies:
+    ts-essentials ">=10.0.0"
 
 vitest@^3.1.4:
   version "3.1.4"

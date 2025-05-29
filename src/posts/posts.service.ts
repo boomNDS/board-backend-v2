@@ -1,22 +1,19 @@
 import {
   Injectable,
   NotFoundException,
-  Logger,
   ForbiddenException,
-} from "@nestjs/common"
-import { PrismaService } from "../prisma/prisma.service"
-import { CreatePostDto } from "./dto/create-post.dto"
-import { UpdatePostDto } from "./dto/update-post.dto"
-import { Post } from "./entities/post.entity"
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreatePostDto } from "./dto/create-post.dto";
+import { UpdatePostDto } from "./dto/update-post.dto";
+import { Post } from "./entities/post.entity";
 
 @Injectable()
 export class PostsService {
-  private readonly logger = new Logger(PostsService.name)
-
   constructor(private prisma: PrismaService) {}
 
   async create(createPostDto: CreatePostDto, userId: number): Promise<Post> {
-    const { title, content } = createPostDto
+    const { title, content } = createPostDto;
 
     const post = await this.prisma.post.create({
       data: {
@@ -24,9 +21,9 @@ export class PostsService {
         content,
         userId,
       },
-    })
+    });
 
-    return post
+    return post;
   }
 
   async findAll(): Promise<Post[]> {
@@ -46,8 +43,8 @@ export class PostsService {
           },
         },
       },
-    })
-    return posts.map((post) => new Post(post))
+    });
+    return posts.map((post) => new Post(post));
   }
 
   async findOne(id: number): Promise<Post> {
@@ -100,13 +97,13 @@ export class PostsService {
           },
         },
       },
-    })
+    });
 
     if (!post) {
-      throw new NotFoundException(`Post not found!`)
+      throw new NotFoundException(`Post not found!`);
     }
 
-    return new Post(post)
+    return new Post(post);
   }
 
   async update(
@@ -114,17 +111,17 @@ export class PostsService {
     updatePostDto: UpdatePostDto,
     userId: number,
   ): Promise<Post> {
-    const { title, content } = updatePostDto
+    const { title, content } = updatePostDto;
     const post = await this.prisma.post.findUnique({
       where: { id },
-    })
+    });
 
     if (!post) {
-      throw new NotFoundException(`Post not found!`)
+      throw new NotFoundException(`Post not found!`);
     }
 
     if (post.userId !== userId) {
-      throw new ForbiddenException("You can only update your own posts!")
+      throw new ForbiddenException("You can only update your own posts!");
     }
 
     const updatedPost = await this.prisma.post.update({
@@ -145,26 +142,26 @@ export class PostsService {
           },
         },
       },
-    })
+    });
 
-    return new Post(updatedPost)
+    return new Post(updatedPost);
   }
 
   async remove(id: number, userId: number): Promise<void> {
     const post = await this.prisma.post.findUnique({
       where: { id },
-    })
+    });
 
     if (!post) {
-      throw new NotFoundException(`Post not found!`)
+      throw new NotFoundException(`Post not found!`);
     }
 
     if (post.userId !== userId) {
-      throw new ForbiddenException("You can only delete your own posts!")
+      throw new ForbiddenException("You can only delete your own posts!");
     }
 
     await this.prisma.post.delete({
       where: { id },
-    })
+    });
   }
 }

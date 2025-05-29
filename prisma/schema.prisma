@@ -35,6 +35,8 @@ model Post {
   userId    Int
   user      User      @relation(fields: [userId], references: [id])
   comments  Comment[]
+
+  @@map("posts")
 }
 
 model Comment {

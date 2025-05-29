@@ -7,42 +7,44 @@ import {
   Param,
   Delete,
   UseGuards,
-} from "@nestjs/common"
-import { CommentsService } from "./comments.service"
-import { CreateCommentDto } from "./dto/create-comment.dto"
-import { UpdateCommentDto } from "./dto/update-comment.dto"
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger"
+  Request,
+} from "@nestjs/common";
+import { CommentsService } from "./comments.service";
+import { CreateCommentDto } from "./dto/create-comment.dto";
+import { UpdateCommentDto } from "./dto/update-comment.dto";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 
 @ApiTags("comments")
-@ApiBearerAuth("JWT-auth")
-@UseGuards(JwtAuthGuard)
 @Controller("comments")
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentsService.create(createCommentDto)
-  }
-
-  @Get()
-  findAll() {
-    return this.commentsService.findAll()
-  }
-
-  @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.commentsService.findOne(+id)
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "Create a new comment" })
+  @ApiResponse({ status: 201, description: "Comment created successful" })
+  create(@Body() createCommentDto: CreateCommentDto, @Request() req) {
+    return this.commentsService.create(createCommentDto, req.user.id);
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto)
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "Update a comment" })
+  @ApiResponse({ status: 200, description: "Comment updated successful" })
+  update(
+    @Param("id") id: string,
+    @Body() updateCommentDto: UpdateCommentDto,
+    @Request() req
+  ) {
+    return this.commentsService.update(+id, updateCommentDto, req.user.id);
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.commentsService.remove(+id)
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "Delete a comment" })
+  @ApiResponse({ status: 200, description: "Comment deleted successful" })
+  remove(@Param("id") id: string, @Request() req) {
+    return this.commentsService.remove(+id, req.user.id);
   }
 }
