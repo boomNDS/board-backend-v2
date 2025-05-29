@@ -1,22 +1,22 @@
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { ValidationPipe, Logger } from "@nestjs/common";
-import { HttpExceptionFilter } from "./utils/filters/http-exception.filter";
-import { ConfigService } from "@nestjs/config";
+import { NestFactory } from "@nestjs/core"
+import { AppModule } from "./app.module"
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
+import { ValidationPipe, Logger } from "@nestjs/common"
+import { HttpExceptionFilter } from "./utils/filters/http-exception.filter"
+import { ConfigService } from "@nestjs/config"
 
 async function bootstrap() {
-  const logger = new Logger("Bootstrap");
+  const logger = new Logger("Bootstrap")
   const app = await NestFactory.create(AppModule, {
     logger: ["error", "warn", "debug", "log", "verbose"],
-  });
-  const configService = app.get(ConfigService);
-  app.useGlobalFilters(new HttpExceptionFilter());
+  })
+  const configService = app.get(ConfigService)
+  app.useGlobalFilters(new HttpExceptionFilter())
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
     }),
-  );
+  )
 
   const config = new DocumentBuilder()
     .setTitle("Board API")
@@ -33,16 +33,16 @@ async function bootstrap() {
       },
       "JWT-auth",
     )
-    .build();
+    .build()
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api", app, document);
+  const document = SwaggerModule.createDocument(app, config)
+  SwaggerModule.setup("api", app, document)
 
-  const port = configService.get("PORT") ?? 3001;
-  await app.listen(port);
-  logger.log(`🚀 Application is running on: http://localhost:${port}`);
+  const port = configService.get("PORT") ?? 3001
+  await app.listen(port)
+  logger.log(`🚀 Application is running on: http://localhost:${port}`)
   logger.log(
     `🔗 Swagger documentation is available at: http://localhost:${port}/api`,
-  );
+  )
 }
-bootstrap();
+bootstrap()

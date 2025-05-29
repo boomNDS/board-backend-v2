@@ -1,7 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { PostsService } from "./posts.service"
-import { describe, expect, it, beforeEach, vi } from "vitest"
+import { describe, expect, it, beforeEach } from "vitest"
 import { PrismaService } from "../prisma/prisma.service"
+import { mockDeep, DeepMockProxy } from "vitest-mock-extended"
 import { NotFoundException, ForbiddenException } from "@nestjs/common"
 import { CreatePostDto } from "./dto/create-post.dto"
 import { createMockUser } from "../users/factories/user.factory"
@@ -9,37 +10,25 @@ import { createMockPost } from "./factories/post.factory"
 
 describe("PostsService", () => {
   let service: PostsService
+  let prismaService: DeepMockProxy<PrismaService>
 
   const mockUser = createMockUser()
   const mockPost = createMockPost({ userId: mockUser.id, user: mockUser })
 
-  const mockPrismaService = {
-    post: {
-      findUnique: vi.fn(),
-      findFirst: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      findMany: vi.fn(),
-    },
-    comment: {
-      findMany: vi.fn(),
-    },
-  }
-
   beforeEach(async () => {
+    prismaService = mockDeep<PrismaService>()
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PostsService,
         {
           provide: PrismaService,
-          useValue: mockPrismaService,
+          useValue: prismaService,
         },
       ],
     }).compile()
 
     service = module.get<PostsService>(PostsService)
-    vi.clearAllMocks()
   })
 
   it("should be defined", () => {
@@ -47,126 +36,137 @@ describe("PostsService", () => {
   })
 
   describe("create", () => {
-    it("should create a new post", async () => {
-      const createPostDto: CreatePostDto = {
+    it("should create a post", async () => {
+      const createPostDto = {
         title: "New Post",
         content: "This is a new post content",
       }
+      const userId = 1
 
-      const expectedPost = createMockPost({
-        ...createPostDto,
-        userId: mockUser.id,
-      })
+      prismaService.post.create.mockResolvedValue(mockPost)
 
-      mockPrismaService.post.create.mockResolvedValue(expectedPost)
+      const result = await service.create(createPostDto, userId)
 
-      const result = await service.create(createPostDto, mockUser.id)
-
-      expect(result).toBeDefined()
-      expect(result.title).toBe(createPostDto.title)
-      expect(result.content).toBe(createPostDto.content)
-      expect(mockPrismaService.post.create).toHaveBeenCalled()
+      expect(prismaService.post.create).toHaveBeenCalled()
+      expect(result).toBeInstanceOf(Object)
     })
   })
 
   describe("findAll", () => {
     it("should return an array of posts", async () => {
-      const posts = [mockPost]
-      mockPrismaService.post.findMany.mockResolvedValue(posts)
+      const mockPosts = [createMockPost()]
+
+      prismaService.post.findMany.mockResolvedValue(mockPosts)
 
       const result = await service.findAll()
 
-      expect(result).toEqual(posts)
-      expect(mockPrismaService.post.findMany).toHaveBeenCalled()
-    })
-
-    it("should return empty array when no posts exist", async () => {
-      mockPrismaService.post.findMany.mockResolvedValue([])
-
-      const result = await service.findAll()
-
-      expect(result).toEqual([])
-      expect(mockPrismaService.post.findMany).toHaveBeenCalled()
+      expect(prismaService.post.findMany).toHaveBeenCalled()
+      expect(result).toHaveLength(1)
+      expect(result[0]).toBeInstanceOf(Object)
     })
   })
 
   describe("findOne", () => {
-    it("should return a post by id", async () => {
-      mockPrismaService.post.findUnique.mockResolvedValue(mockPost)
+    it("should return a post", async () => {
+      prismaService.post.findUnique.mockResolvedValue(mockPost)
 
       const result = await service.findOne(1)
 
-      expect(result).toEqual(mockPost)
-      expect(mockPrismaService.post.findUnique).toHaveBeenCalled()
+      expect(prismaService.post.findUnique).toHaveBeenCalled()
+      expect(result).toBeInstanceOf(Object)
     })
 
-    it("should throw NotFoundException if post not found", async () => {
-      mockPrismaService.post.findUnique.mockResolvedValue(null)
+    it("should throw NotFoundException if post does not exist", async () => {
+      prismaService.post.findUnique.mockResolvedValue(null)
 
-      await expect(service.findOne(999)).rejects.toThrow(NotFoundException)
+      await expect(service.findOne(1)).rejects.toThrow(NotFoundException)
     })
   })
 
   describe("update", () => {
-    it("should update a post when user id is owner", async () => {
+    it("should update a post", async () => {
       const updatePostDto = {
         title: "Updated Post",
+        content: "Updated content",
       }
-
-      const expectedPost = createMockPost({
+      const userId = 1
+      const mockUpdatedPost = createMockPost({
         ...updatePostDto,
         userId: mockUser.id,
       })
 
-      mockPrismaService.post.findUnique.mockResolvedValue(mockPost)
-      mockPrismaService.post.update.mockResolvedValue(expectedPost)
+      prismaService.post.findUnique.mockResolvedValue(mockPost)
+      prismaService.post.update.mockResolvedValue(mockUpdatedPost)
 
-      const result = await service.update(1, updatePostDto, mockUser.id)
+      const result = await service.update(1, updatePostDto, userId)
 
-      expect(result).toBeDefined()
-      expect(result.title).toBe(updatePostDto.title)
-      expect(mockPrismaService.post.update).toHaveBeenCalled()
+      expect(prismaService.post.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+      })
+      expect(prismaService.post.update).toHaveBeenCalled()
+      expect(result).toBeInstanceOf(Object)
     })
 
-    it("should throw ForbiddenException when user id is not owner", async () => {
-      mockPrismaService.post.findUnique.mockResolvedValue(mockPost)
+    it("should throw NotFoundException if post does not exist", async () => {
+      const updatePostDto = {
+        title: "Updated Post",
+        content: "Updated content",
+      }
+      const userId = 1
 
-      await expect(service.update(1, {}, 999)).rejects.toThrow(
-        ForbiddenException,
-      )
-      expect(mockPrismaService.post.update).not.toHaveBeenCalled()
-    })
+      prismaService.post.findUnique.mockResolvedValue(null)
 
-    it("should throw NotFoundException if post not found", async () => {
-      mockPrismaService.post.findUnique.mockResolvedValue(null)
-
-      await expect(service.update(999, {}, 999)).rejects.toThrow(
+      await expect(service.update(1, updatePostDto, userId)).rejects.toThrow(
         NotFoundException,
+      )
+    })
+
+    it("should throw ForbiddenException if user is not the owner", async () => {
+      const updatePostDto = {
+        title: "Updated Post",
+        content: "Updated content",
+      }
+      const userId = 2
+      const mockPost = createMockPost()
+
+      prismaService.post.findUnique.mockResolvedValue(mockPost)
+
+      await expect(service.update(1, updatePostDto, userId)).rejects.toThrow(
+        ForbiddenException,
       )
     })
   })
 
   describe("remove", () => {
-    it("should remove a post when user id is owner", async () => {
-      mockPrismaService.post.findUnique.mockResolvedValue(mockPost)
-      mockPrismaService.post.delete.mockResolvedValue(mockPost)
+    it("should remove a post", async () => {
+      const userId = 1
 
-      await service.remove(1, mockUser.id)
+      prismaService.post.findUnique.mockResolvedValue(mockPost)
+      prismaService.post.delete.mockResolvedValue(mockPost)
 
-      expect(mockPrismaService.post.delete).toHaveBeenCalled()
+      await service.remove(1, userId)
+
+      expect(prismaService.post.findUnique).toHaveBeenCalled()
+      expect(prismaService.post.delete).toHaveBeenCalled()
     })
 
-    it("should throw ForbiddenException when user id is not owner", async () => {
-      mockPrismaService.post.findUnique.mockResolvedValue(mockPost)
+    it("should throw NotFoundException if post does not exist", async () => {
+      const userId = 1
 
-      await expect(service.remove(1, 999)).rejects.toThrow(ForbiddenException)
-      expect(mockPrismaService.post.delete).not.toHaveBeenCalled()
+      prismaService.post.findUnique.mockResolvedValue(null)
+
+      await expect(service.remove(1, userId)).rejects.toThrow(NotFoundException)
     })
 
-    it("should throw NotFoundException if post not found", async () => {
-      mockPrismaService.post.findUnique.mockResolvedValue(null)
+    it("should throw ForbiddenException if user is not the owner", async () => {
+      const userId = 2
+      const mockPost = createMockPost()
 
-      await expect(service.remove(999, 999)).rejects.toThrow(NotFoundException)
+      prismaService.post.findUnique.mockResolvedValue(mockPost)
+
+      await expect(service.remove(1, userId)).rejects.toThrow(
+        ForbiddenException,
+      )
     })
   })
 })

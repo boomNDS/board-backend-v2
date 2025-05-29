@@ -1,28 +1,28 @@
-import { Comment as PrismaComment, User } from "@prisma/client";
+import { Comment as PrismaComment, User } from "@prisma/client"
 
 export class Comment {
-  id: number;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-  userId: number;
-  postId: number;
-  parentId?: number;
+  id: number
+  content: string
+  createdAt: Date
+  updatedAt: Date
+  userId: number
+  postId: number
+  parentId?: number
   user?: {
-    id: number;
-    username: string;
-    email: string;
-  };
-  children?: Comment[];
+    id: number
+    username: string
+    email: string
+  }
+  children?: Comment[]
 
   constructor(
     partial: Partial<
       PrismaComment & {
-        user?: Pick<User, "id" | "username" | "email">;
-        children?: Comment[];
+        user?: Pick<User, "id" | "username" | "email">
+        children?: Comment[]
       }
-    >
+    >,
   ) {
-    Object.assign(this, partial);
+    Object.assign(this, partial)
   }
 }
