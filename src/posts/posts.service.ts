@@ -7,23 +7,25 @@ import { PrismaService } from "../prisma/prisma.service"
 import { CreatePostDto } from "./dto/create-post.dto"
 import { UpdatePostDto } from "./dto/update-post.dto"
 import { Post } from "./entities/post.entity"
+import { IPost } from "./interfaces/post.interface"
 
 @Injectable()
 export class PostsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createPostDto: CreatePostDto, userId: number): Promise<Post> {
-    const { title, content } = createPostDto
+  async create(createPostDto: CreatePostDto, userId: number): Promise<IPost> {
+    const { title, content, community } = createPostDto
 
     const post = await this.prisma.post.create({
       data: {
         title,
         content,
         userId,
+        community,
       },
     })
 
-    return post
+    return post as unknown as IPost
   }
 
   async findAll(): Promise<Post[]> {

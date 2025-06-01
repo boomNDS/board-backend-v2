@@ -1,5 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsNotEmpty, IsString, MinLength } from "class-validator"
+import {
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsEnum,
+  IsOptional,
+} from "class-validator"
+import { Community } from "../enums/community.enum"
 
 export class CreatePostDto {
   @ApiProperty({ example: "My First Post" })
@@ -13,4 +20,13 @@ export class CreatePostDto {
   @IsString()
   @MinLength(10)
   content: string
+
+  @ApiProperty({
+    example: "history",
+    enum: Community,
+    default: Community.OTHERS,
+  })
+  @IsEnum(Community)
+  @IsOptional()
+  community: Community = Community.OTHERS
 }

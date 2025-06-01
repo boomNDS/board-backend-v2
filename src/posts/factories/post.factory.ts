@@ -1,5 +1,6 @@
 import { Post, User } from "@prisma/client"
 import { createMockUser } from "../../users/factories/user.factory"
+import { Community } from "../enums/community.enum"
 
 type PostWithUser = Post & {
   user?: Pick<User, "id" | "username" | "email">
@@ -14,6 +15,7 @@ export const createMockPost = (
     title: "Test Post",
     content: "This is a test post content",
     userId: mockUser.id,
+    community: Community.OTHERS,
     createdAt: new Date(),
     updatedAt: new Date(),
     user: {

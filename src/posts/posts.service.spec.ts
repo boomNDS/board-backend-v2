@@ -7,6 +7,7 @@ import { NotFoundException, ForbiddenException } from "@nestjs/common"
 import { CreatePostDto } from "./dto/create-post.dto"
 import { createMockUser } from "../users/factories/user.factory"
 import { createMockPost } from "./factories/post.factory"
+import { Community } from "./enums/community.enum"
 
 describe("PostsService", () => {
   let service: PostsService
@@ -40,6 +41,7 @@ describe("PostsService", () => {
       const createPostDto = {
         title: "New Post",
         content: "This is a new post content",
+        community: Community.HISTORY,
       }
       const userId = 1
 
