@@ -8,6 +8,7 @@ import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { Post } from "./entities/post.entity";
 import { IPost } from "./interfaces/post.interface";
+import { Community } from "./enums/community.enum";
 
 @Injectable()
 export class PostsService {
@@ -28,8 +29,20 @@ export class PostsService {
     return post as unknown as IPost;
   }
 
-  async findAll(): Promise<Post[]> {
+  async findAll({
+    search,
+    community,
+  }: {
+    search?: string;
+    community?: Community;
+  }): Promise<Post[]> {
     const posts = await this.prisma.post.findMany({
+      where: {
+        title: {
+          contains: search,
+        },
+        community,
+      },
       select: {
         id: true,
         title: true,
@@ -37,6 +50,7 @@ export class PostsService {
         createdAt: true,
         updatedAt: true,
         userId: true,
+        community: true,
         user: {
           select: {
             id: true,
@@ -55,16 +69,28 @@ export class PostsService {
       },
     });
     return posts.map((post) => ({
-      ...new Post(post),
+      ...new Post(post as IPost),
       _count: undefined,
       commentsCount: post._count.comments,
     }));
   }
 
-  async myPosts(userId: number): Promise<Post[]> {
+  async myPosts({
+    userId,
+    search,
+    community,
+  }: {
+    userId: number;
+    search?: string;
+    community?: Community;
+  }): Promise<Post[]> {
     const posts = await this.prisma.post.findMany({
       where: {
         userId,
+        title: {
+          contains: search,
+        },
+        community,
       },
       select: {
         id: true,
@@ -73,6 +99,7 @@ export class PostsService {
         createdAt: true,
         updatedAt: true,
         userId: true,
+        community: true,
         user: {
           select: {
             id: true,
@@ -91,7 +118,7 @@ export class PostsService {
       },
     });
     return posts.map((post) => ({
-      ...new Post(post),
+      ...new Post(post as IPost),
       _count: undefined,
       commentsCount: post._count.comments,
     }));
@@ -153,7 +180,7 @@ export class PostsService {
       throw new NotFoundException(`Post not found!`);
     }
 
-    return new Post(post);
+    return new Post(post as IPost);
   }
 
   async update(

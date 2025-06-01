@@ -9,6 +9,7 @@ import {
   UseGuards,
   HttpCode,
   Request,
+  Query,
 } from "@nestjs/common";
 import { PostsService } from "./posts.service";
 import { CreatePostDto } from "./dto/create-post.dto";
@@ -21,6 +22,7 @@ import {
   ApiBearerAuth,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { Community } from "./enums/community.enum";
 
 @ApiTags("posts")
 @ApiTags("protected")
@@ -40,7 +42,7 @@ export class PostsController {
   })
   create(
     @Body() createPostDto: CreatePostDto,
-    @Request() req
+    @Request() req,
   ): Promise<PostEntity> {
     return this.postsService.create(createPostDto, req.user.id);
   }
@@ -52,8 +54,11 @@ export class PostsController {
     description: "Return all posts",
     type: [PostEntity],
   })
-  findAll(): Promise<PostEntity[]> {
-    return this.postsService.findAll();
+  findAll(
+    @Query("search") search: string,
+    @Query("community") community: Community,
+  ): Promise<PostEntity[]> {
+    return this.postsService.findAll({ search, community });
   }
 
   @Get("me")
@@ -65,8 +70,16 @@ export class PostsController {
     description: "Return all my posts",
     type: [PostEntity],
   })
-  myPosts(@Request() req): Promise<PostEntity[]> {
-    return this.postsService.myPosts(req.user.id);
+  myPosts(
+    @Query("search") search: string,
+    @Query("community") community: Community,
+    @Request() req,
+  ): Promise<PostEntity[]> {
+    return this.postsService.myPosts({
+      userId: req.user.id,
+      search,
+      community,
+    });
   }
 
   @Get(":id")
@@ -92,7 +105,7 @@ export class PostsController {
   update(
     @Param("id") id: string,
     @Body() updatePostDto: UpdatePostDto,
-    @Request() req
+    @Request() req,
   ): Promise<PostEntity> {
     return this.postsService.update(+id, updatePostDto, req.user.id);
   }

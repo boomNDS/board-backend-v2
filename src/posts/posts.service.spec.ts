@@ -4,7 +4,6 @@ import { describe, expect, it, beforeEach } from "vitest";
 import { PrismaService } from "../prisma/prisma.service";
 import { mockDeep, DeepMockProxy } from "vitest-mock-extended";
 import { NotFoundException, ForbiddenException } from "@nestjs/common";
-import { CreatePostDto } from "./dto/create-post.dto";
 import { createMockUser } from "../users/factories/user.factory";
 import { createMockPost } from "./factories/post.factory";
 import { Community } from "./enums/community.enum";
@@ -60,7 +59,7 @@ describe("PostsService", () => {
 
       prismaService.post.findMany.mockResolvedValue(mockPosts);
 
-      const result = await service.findAll();
+      const result = await service.findAll({});
 
       expect(prismaService.post.findMany).toHaveBeenCalled();
       expect(result).toHaveLength(1);
@@ -74,7 +73,7 @@ describe("PostsService", () => {
 
       prismaService.post.findMany.mockResolvedValue(mockPosts);
 
-      const result = await service.myPosts(mockUser.id);
+      const result = await service.myPosts({ userId: mockUser.id });
 
       expect(prismaService.post.findMany).toHaveBeenCalled();
       expect(result).toHaveLength(1);
