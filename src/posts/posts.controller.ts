@@ -9,18 +9,18 @@ import {
   UseGuards,
   HttpCode,
   Request,
-} from "@nestjs/common"
-import { PostsService } from "./posts.service"
-import { CreatePostDto } from "./dto/create-post.dto"
-import { UpdatePostDto } from "./dto/update-post.dto"
-import { Post as PostEntity } from "./entities/post.entity"
+} from "@nestjs/common";
+import { PostsService } from "./posts.service";
+import { CreatePostDto } from "./dto/create-post.dto";
+import { UpdatePostDto } from "./dto/update-post.dto";
+import { Post as PostEntity } from "./entities/post.entity";
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
-} from "@nestjs/swagger"
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
+} from "@nestjs/swagger";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 
 @ApiTags("posts")
 @ApiTags("protected")
@@ -40,9 +40,9 @@ export class PostsController {
   })
   create(
     @Body() createPostDto: CreatePostDto,
-    @Request() req,
+    @Request() req
   ): Promise<PostEntity> {
-    return this.postsService.create(createPostDto, req.user.id)
+    return this.postsService.create(createPostDto, req.user.id);
   }
 
   @Get()
@@ -53,7 +53,20 @@ export class PostsController {
     type: [PostEntity],
   })
   findAll(): Promise<PostEntity[]> {
-    return this.postsService.findAll()
+    return this.postsService.findAll();
+  }
+
+  @Get("me")
+  @ApiBearerAuth("JWT-auth")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "Get all my posts" })
+  @ApiResponse({
+    status: 200,
+    description: "Return all my posts",
+    type: [PostEntity],
+  })
+  myPosts(@Request() req): Promise<PostEntity[]> {
+    return this.postsService.myPosts(req.user.id);
   }
 
   @Get(":id")
@@ -64,7 +77,7 @@ export class PostsController {
     type: PostEntity,
   })
   findOne(@Param("id") id: string): Promise<PostEntity> {
-    return this.postsService.findOne(+id)
+    return this.postsService.findOne(+id);
   }
 
   @Patch(":id")
@@ -79,9 +92,9 @@ export class PostsController {
   update(
     @Param("id") id: string,
     @Body() updatePostDto: UpdatePostDto,
-    @Request() req,
+    @Request() req
   ): Promise<PostEntity> {
-    return this.postsService.update(+id, updatePostDto, req.user.id)
+    return this.postsService.update(+id, updatePostDto, req.user.id);
   }
 
   @Delete(":id")
@@ -90,6 +103,6 @@ export class PostsController {
   @ApiOperation({ summary: "Delete a post" })
   @ApiResponse({ status: 200, description: "Post deleted successful" })
   remove(@Param("id") id: string, @Request() req): Promise<void> {
-    return this.postsService.remove(+id, req.user.id)
+    return this.postsService.remove(+id, req.user.id);
   }
 }

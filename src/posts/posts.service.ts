@@ -2,19 +2,19 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
-} from "@nestjs/common"
-import { PrismaService } from "../prisma/prisma.service"
-import { CreatePostDto } from "./dto/create-post.dto"
-import { UpdatePostDto } from "./dto/update-post.dto"
-import { Post } from "./entities/post.entity"
-import { IPost } from "./interfaces/post.interface"
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreatePostDto } from "./dto/create-post.dto";
+import { UpdatePostDto } from "./dto/update-post.dto";
+import { Post } from "./entities/post.entity";
+import { IPost } from "./interfaces/post.interface";
 
 @Injectable()
 export class PostsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createPostDto: CreatePostDto, userId: number): Promise<IPost> {
-    const { title, content, community } = createPostDto
+    const { title, content, community } = createPostDto;
 
     const post = await this.prisma.post.create({
       data: {
@@ -23,9 +23,9 @@ export class PostsService {
         userId,
         community,
       },
-    })
+    });
 
-    return post as unknown as IPost
+    return post as unknown as IPost;
   }
 
   async findAll(): Promise<Post[]> {
@@ -44,9 +44,57 @@ export class PostsService {
             email: true,
           },
         },
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
-    })
-    return posts.map((post) => new Post(post))
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return posts.map((post) => ({
+      ...new Post(post),
+      _count: undefined,
+      commentsCount: post._count.comments,
+    }));
+  }
+
+  async myPosts(userId: number): Promise<Post[]> {
+    const posts = await this.prisma.post.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        userId: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return posts.map((post) => ({
+      ...new Post(post),
+      _count: undefined,
+      commentsCount: post._count.comments,
+    }));
   }
 
   async findOne(id: number): Promise<Post> {
@@ -99,31 +147,31 @@ export class PostsService {
           },
         },
       },
-    })
+    });
 
     if (!post) {
-      throw new NotFoundException(`Post not found!`)
+      throw new NotFoundException(`Post not found!`);
     }
 
-    return new Post(post)
+    return new Post(post);
   }
 
   async update(
     id: number,
     updatePostDto: UpdatePostDto,
-    userId: number,
+    userId: number
   ): Promise<Post> {
-    const { title, content } = updatePostDto
+    const { title, content } = updatePostDto;
     const post = await this.prisma.post.findUnique({
       where: { id },
-    })
+    });
 
     if (!post) {
-      throw new NotFoundException(`Post not found!`)
+      throw new NotFoundException(`Post not found!`);
     }
 
     if (post.userId !== userId) {
-      throw new ForbiddenException("You can only update your own posts!")
+      throw new ForbiddenException("You can only update your own posts!");
     }
 
     const updatedPost = await this.prisma.post.update({
@@ -144,26 +192,26 @@ export class PostsService {
           },
         },
       },
-    })
+    });
 
-    return new Post(updatedPost)
+    return new Post(updatedPost);
   }
 
   async remove(id: number, userId: number): Promise<void> {
     const post = await this.prisma.post.findUnique({
       where: { id },
-    })
+    });
 
     if (!post) {
-      throw new NotFoundException(`Post not found!`)
+      throw new NotFoundException(`Post not found!`);
     }
 
     if (post.userId !== userId) {
-      throw new ForbiddenException("You can only delete your own posts!")
+      throw new ForbiddenException("You can only delete your own posts!");
     }
 
     await this.prisma.post.delete({
       where: { id },
-    })
+    });
   }
 }
