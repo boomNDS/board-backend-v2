@@ -23,6 +23,7 @@ import {
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { Community } from "./enums/community.enum";
+import { IPost } from "./interfaces/post.interface";
 
 @ApiTags("posts")
 @ApiTags("protected")
@@ -40,10 +41,7 @@ export class PostsController {
     description: "Post created successful",
     type: PostEntity,
   })
-  create(
-    @Body() createPostDto: CreatePostDto,
-    @Request() req,
-  ): Promise<PostEntity> {
+  create(@Body() createPostDto: CreatePostDto, @Request() req): Promise<IPost> {
     return this.postsService.create(createPostDto, req.user.id);
   }
 
@@ -57,8 +55,11 @@ export class PostsController {
   findAll(
     @Query("search") search: string,
     @Query("community") community: Community,
-  ): Promise<PostEntity[]> {
-    return this.postsService.findAll({ search, community });
+  ): Promise<IPost[]> {
+    return this.postsService.findAll({
+      search,
+      community,
+    });
   }
 
   @Get("me")
@@ -74,7 +75,7 @@ export class PostsController {
     @Query("search") search: string,
     @Query("community") community: Community,
     @Request() req,
-  ): Promise<PostEntity[]> {
+  ): Promise<IPost[]> {
     return this.postsService.myPosts({
       userId: req.user.id,
       search,
@@ -89,7 +90,7 @@ export class PostsController {
     description: "Return the post",
     type: PostEntity,
   })
-  findOne(@Param("id") id: string): Promise<PostEntity> {
+  findOne(@Param("id") id: string): Promise<IPost> {
     return this.postsService.findOne(+id);
   }
 
@@ -106,7 +107,7 @@ export class PostsController {
     @Param("id") id: string,
     @Body() updatePostDto: UpdatePostDto,
     @Request() req,
-  ): Promise<PostEntity> {
+  ): Promise<IPost> {
     return this.postsService.update(+id, updatePostDto, req.user.id);
   }
 

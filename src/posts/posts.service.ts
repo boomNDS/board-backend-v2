@@ -41,7 +41,7 @@ export class PostsService {
         title: {
           contains: search,
         },
-        community,
+        community: community ? community : undefined,
       },
       select: {
         id: true,
@@ -90,7 +90,7 @@ export class PostsService {
         title: {
           contains: search,
         },
-        community,
+        community: community ? community : undefined,
       },
       select: {
         id: true,
@@ -124,7 +124,7 @@ export class PostsService {
     }));
   }
 
-  async findOne(id: number): Promise<Post> {
+  async findOne(id: number): Promise<IPost> {
     const post = await this.prisma.post.findUnique({
       where: { id },
       select: {
@@ -134,6 +134,7 @@ export class PostsService {
         createdAt: true,
         updatedAt: true,
         userId: true,
+        community: true,
         user: {
           select: {
             id: true,
@@ -180,13 +181,13 @@ export class PostsService {
       throw new NotFoundException(`Post not found!`);
     }
 
-    return new Post(post as IPost);
+    return post as unknown as IPost;
   }
 
   async update(
     id: number,
     updatePostDto: UpdatePostDto,
-    userId: number
+    userId: number,
   ): Promise<Post> {
     const { title, content } = updatePostDto;
     const post = await this.prisma.post.findUnique({
